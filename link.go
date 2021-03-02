@@ -353,6 +353,8 @@ type Veth struct {
 	PeerName         string // veth on create only
 	PeerHardwareAddr net.HardwareAddr
 	PeerNamespace    interface{}
+	// issue: modify to convert to link
+	Link
 }
 
 func (veth *Veth) Attrs() *LinkAttrs {
