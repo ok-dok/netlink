@@ -40,6 +40,37 @@ const (
 	VF_LINK_STATE_DISABLE uint32 = 2
 )
 
+type LinkType string
+const (
+	LINK_DUMMY		LinkType = "dummy"
+	LINK_IFB			LinkType = "ifb"
+	LINK_BRIDGE		LinkType = "bridge"
+	LINK_VLAN		LinkType = "vlan"
+	LINK_VETH		LinkType = "veth"
+	LINK_WIRE_GUARD	LinkType = "wireguard"
+	LINK_VXLAN		LinkType = "vxlan"
+	LINK_BOND		LinkType = "bond"
+	LINK_IP_VLAN		LinkType = "ipvlan"
+	LINK_MAC_VLAN	LinkType = "macvlan"
+	LINK_MAC_VTAP	LinkType = "macvtap"
+	LINK_GENEVE		LinkType = "geneve"
+	LINK_GRE_TAP		LinkType = "gretap"
+	LINK_GRE_TAP_IP6	LinkType = "ip6gretap"
+	LINK_IP_IP		LinkType = "ipip"
+	LINK_IP6_TNL		LinkType = "ip6tnl"
+	LINK_SIT			LinkType = "sit"
+	LINK_GRE			LinkType = "gre"
+	LINK_GRE_IP6		LinkType = "ip6gre"
+	LINK_VTI			LinkType = "vti"
+	LINK_VTI6		LinkType = "vti6"
+	LINK_VRF			LinkType = "vrf"
+	LINK_GTP			LinkType = "gtp"
+	LINK_XFRM		LinkType = "xfrm"
+	LINK_TUN			LinkType = "tun"
+	LINK_IPOIB		LinkType = "ipoib"
+	LINK_CAN			LinkType = "can"
+)
+
 var lookupByDump = false
 
 var macvlanModes = [...]uint32{
@@ -49,6 +80,10 @@ var macvlanModes = [...]uint32{
 	nl.MACVLAN_MODE_BRIDGE,
 	nl.MACVLAN_MODE_PASSTHRU,
 	nl.MACVLAN_MODE_SOURCE,
+}
+
+func (linkType LinkType) String() string  {
+	return string(linkType)
 }
 
 func ensureIndex(link *LinkAttrs) {
@@ -1913,6 +1948,18 @@ func readSysPropAsInt64(ifname, prop string) (int64, error) {
 // Equivalent to: `ip link show`
 func LinkList() ([]Link, error) {
 	return pkgHandle.LinkList()
+}
+
+// LinkList(linkType string) gets a list of link devices which's type is linkType.
+// Equivalent to: `ip link show group default type xxx`
+func LinkListByType(linkType LinkType)(list []Link, err error)  {
+	linkList, err := pkgHandle.LinkList()
+	for _, link := range linkList {
+		if LinkType(link.Type()) == linkType {
+			list = append(list, link)
+		}
+	}
+	return list, err
 }
 
 // LinkList gets a list of link devices.
